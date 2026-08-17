@@ -2,12 +2,17 @@ import { GoogleGenAI } from '@google/genai';
 
 let aiInstance = null;
 
+function getApiKey() {
+  const key = process.env.GEMINI_API_KEY || process.env.OPENROUTER_API_KEY;
+  if (!key) {
+    throw new Error('GEMINI_API_KEY (or OPENROUTER_API_KEY) environment variable is not configured.');
+  }
+  return key;
+}
+
 function getAiClient() {
   if (!aiInstance) {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error('GEMINI_API_KEY environment variable is not configured.');
-    }
+    const apiKey = getApiKey();
     aiInstance = new GoogleGenAI({
       apiKey,
       httpOptions: {
@@ -59,16 +64,78 @@ const MODE_PROMPTS = {
   }),
 };
 
+async function rewriteWithOpenRouter({ apiKey, prompt, system, mode }) {
+  const models = [
+    'google/gemini-2.5-flash',
+    'google/gemini-2.5-flash-lite',
+    'google/gemini-3.7-flash',
+    'openrouter/free',
+    'google/gemma-4-26b-a4b-it:free',
+    'nvidia/nemotron-3.5-lightning:free'
+  ];
+
+  let lastError = null;
+  for (const model of models) {
+    try {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://github.com/pankaj9088/RewriteAI',
+          'X-Title': 'RewriteAI Chrome Extension',
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: 'system', content: system },
+            { role: 'user', content: prompt },
+          ],
+          temperature: mode === 'grammar' || mode === 'translate' ? 0.2 : 0.7,
+        }),
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`OpenRouter (${model}) status ${response.status}: ${errText}`);
+      }
+
+      const data = await response.json();
+      const text = data.choices?.[0]?.message?.content;
+      if (text) {
+        return { result: text.trim(), model, mode };
+      }
+    } catch (err) {
+      lastError = err;
+      console.warn(`[RewriteAI OpenRouter] Error with ${model}:`, err.message);
+    }
+  }
+
+  throw lastError || new Error('Failed to get rewrite from OpenRouter models');
+}
+
 export async function rewriteText({
   text,
   mode = 'grammar',
   customInstruction = '',
   targetLanguage = 'Spanish',
 }) {
-  const ai = getAiClient();
+  const apiKey = getApiKey();
   const promptBuilder = MODE_PROMPTS[mode] || MODE_PROMPTS.grammar;
   const { system, prompt } = promptBuilder(text, customInstruction, targetLanguage);
 
+  // If using OpenRouter key (starts with sk-)
+  if (apiKey.startsWith('sk-')) {
+    const res = await rewriteWithOpenRouter({ apiKey, prompt, system, mode });
+    let output = res.result;
+    if (output.startsWith('```') && output.endsWith('```')) {
+      output = output.replace(/^```[a-z]*\n?/, '').replace(/\n?```$/, '').trim();
+    }
+    return { ...res, result: output };
+  }
+
+  // Native Google Gemini SDK
+  const ai = getAiClient();
   const candidateModels = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
   let lastError = null;
   let response = null;
