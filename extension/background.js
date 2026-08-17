@@ -38,6 +38,33 @@ chrome.runtime.onInstalled.addListener(() => {
   console.log('[RewriteAI] Background service worker initialized.');
 });
 
+// Helper to detect restricted URLs where content scripts cannot execute
+function isRestrictedUrl(url) {
+  if (!url) return true;
+  const restrictedProtocols = ['chrome:', 'edge:', 'about:', 'chrome-extension:', 'devtools:', 'view-source:'];
+  return (
+    restrictedProtocols.some((protocol) => url.startsWith(protocol)) ||
+    url.startsWith('https://chrome.google.com/webstore') ||
+    url.startsWith('https://chromewebstore.google.com')
+  );
+}
+
+// Safe tab messaging wrapper that handles chrome.runtime.lastError
+function safeSendTabMessage(tabId, message, callback) {
+  try {
+    chrome.tabs.sendMessage(tabId, message, (response) => {
+      const lastError = chrome.runtime.lastError; // Accessing clears unhandled error
+      if (callback) {
+        callback(response, lastError);
+      }
+    });
+  } catch (err) {
+    if (callback) {
+      callback(null, err);
+    }
+  }
+}
+
 // Handle Context Menu clicks
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === 'rewrite-with-rewriteai' && info.selectionText) {
@@ -49,13 +76,11 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
       timestamp: Date.now(),
       source: 'contextMenu',
     }, () => {
-      // Notify active tab content script
-      if (tab && tab.id) {
-        chrome.tabs.sendMessage(tab.id, {
+      // Notify active tab content script safely
+      if (tab && tab.id && !isRestrictedUrl(tab.url)) {
+        safeSendTabMessage(tab.id, {
           action: 'OPEN_REWRITE_MODAL',
           text: selectedText,
-        }).catch((err) => {
-          console.warn('[RewriteAI] Could not send message to tab:', err);
         });
       }
     });
@@ -66,11 +91,10 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 chrome.commands.onCommand.addListener((command) => {
   if (command === 'rewrite-selected-text') {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs[0] && tabs[0].id) {
-        chrome.tabs.sendMessage(tabs[0].id, {
+      const activeTab = tabs[0];
+      if (activeTab && activeTab.id && !isRestrictedUrl(activeTab.url)) {
+        safeSendTabMessage(activeTab.id, {
           action: 'TRIGGER_KEYBOARD_REWRITE',
-        }).catch((err) => {
-          console.warn('[RewriteAI] Command dispatch error:', err);
         });
       }
     });

@@ -80,16 +80,60 @@ document.addEventListener('DOMContentLoaded', async () => {
     selectMode(stored.defaultMode);
   }
 
+  // Helper to detect Chrome restricted URLs where content scripts cannot execute
+  function isRestrictedUrl(url) {
+    if (!url) return true;
+    const restrictedProtocols = ['chrome:', 'edge:', 'about:', 'chrome-extension:', 'devtools:', 'view-source:'];
+    return (
+      restrictedProtocols.some((protocol) => url.startsWith(protocol)) ||
+      url.startsWith('https://chrome.google.com/webstore') ||
+      url.startsWith('https://chromewebstore.google.com')
+    );
+  }
+
+  // Safe tab messaging wrapper that always handles chrome.runtime.lastError
+  function safeSendTabMessage(tabId, message, callback) {
+    try {
+      chrome.tabs.sendMessage(tabId, message, (response) => {
+        const lastError = chrome.runtime.lastError; // Accessing clears unhandled error
+        if (callback) {
+          callback(response, lastError);
+        }
+      });
+    } catch (err) {
+      if (callback) {
+        callback(null, err);
+      }
+    }
+  }
+
+  // Safe runtime messaging wrapper that always handles chrome.runtime.lastError
+  function safeSendRuntimeMessage(message, callback) {
+    try {
+      chrome.runtime.sendMessage(message, (response) => {
+        const lastError = chrome.runtime.lastError; // Accessing clears unhandled error
+        if (callback) {
+          callback(response, lastError);
+        }
+      });
+    } catch (err) {
+      if (callback) {
+        callback(null, err);
+      }
+    }
+  }
+
   // Load selected text if present from content script or context menu
   if (stored.selectedText && stored.selectedText.trim()) {
     sourceText.value = stored.selectedText.trim();
     updateTextStats();
   } else {
-    // Try querying active tab directly for selection
+    // Try querying active tab directly for selection safely
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs[0] && tabs[0].id) {
-        chrome.tabs.sendMessage(tabs[0].id, { action: 'GET_PAGE_SELECTION' }, (response) => {
-          if (response && response.text && response.text.trim()) {
+      const activeTab = tabs[0];
+      if (activeTab && activeTab.id && !isRestrictedUrl(activeTab.url)) {
+        safeSendTabMessage(activeTab.id, { action: 'GET_PAGE_SELECTION' }, (response, err) => {
+          if (!err && response && response.text && response.text.trim()) {
             sourceText.value = response.text.trim();
             updateTextStats();
           }
@@ -184,14 +228,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       // Send request through background service worker
       const response = await new Promise((resolve, reject) => {
-        chrome.runtime.sendMessage(
+        safeSendRuntimeMessage(
           {
             action: 'REWRITE_TEXT',
             payload,
           },
-          (res) => {
-            if (chrome.runtime.lastError) {
-              return reject(new Error(chrome.runtime.lastError.message));
+          (res, err) => {
+            if (err) {
+              return reject(new Error(err.message || 'Background connection error'));
             }
             resolve(res);
           }
@@ -270,19 +314,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!text) return;
 
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs[0] && tabs[0].id) {
-        chrome.tabs.sendMessage(
-          tabs[0].id,
+      const activeTab = tabs[0];
+      if (activeTab && activeTab.id && !isRestrictedUrl(activeTab.url)) {
+        safeSendTabMessage(
+          activeTab.id,
           { action: 'REPLACE_ACTIVE_SELECTION', text },
-          (response) => {
-            if (response && response.success) {
+          (response, err) => {
+            if (!err && response && response.success) {
               showToast('✨ Text replaced on webpage!');
             } else {
               navigator.clipboard.writeText(text);
-              showToast('📋 Text copied (element was read-only)');
+              showToast('📋 Text copied (element was read-only or not editable)');
             }
           }
         );
+      } else {
+        // Fallback for restricted pages (chrome://, web store, etc.)
+        navigator.clipboard.writeText(text);
+        showToast('📋 Text copied to clipboard');
       }
     });
   });
@@ -383,7 +432,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
       const response = await new Promise((resolve) => {
-        chrome.runtime.sendMessage({ action: 'CHECK_BACKEND_HEALTH', url }, resolve);
+        safeSendRuntimeMessage({ action: 'CHECK_BACKEND_HEALTH', url }, (res, err) => {
+          if (err) {
+            resolve({ success: false, error: err.message || 'Background worker unreachable' });
+          } else {
+            resolve(res);
+          }
+        });
       });
 
       if (response && response.success) {
