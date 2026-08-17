@@ -15,8 +15,8 @@ const CONFIG = {
   // Environment: 'production' (default for Chrome Web Store) or 'development'
   ENV: 'production',
 
-  // 🚀 REPLACE THIS PLACEHOLDER WITH YOUR DEPLOYED RENDER BACKEND URL
-  PRODUCTION_API_URL: 'https://YOUR_PUBLIC_BACKEND_URL',
+  // 🚀 LIVE PRODUCTION RENDER BACKEND URL
+  PRODUCTION_API_URL: 'https://rewriteai-jiff.onrender.com',
 
   // 💻 Localhost URL for local development
   DEVELOPMENT_API_URL: 'http://localhost:3000',

@@ -55,10 +55,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // 1. Load initial settings and theme
   const appConfig = (typeof window.CONFIG !== 'undefined') ? window.CONFIG : {
-    PRODUCTION_API_URL: 'https://YOUR_PUBLIC_BACKEND_URL',
+    PRODUCTION_API_URL: 'https://rewriteai-jiff.onrender.com',
     DEVELOPMENT_API_URL: 'http://localhost:3000',
-    API_BASE_URL: 'https://YOUR_PUBLIC_BACKEND_URL',
-    isPlaceholder: (url) => !url || url.includes('YOUR_PUBLIC_BACKEND_URL') || url.includes('YOUR-PUBLIC-BACKEND-URL'),
+    API_BASE_URL: 'https://rewriteai-jiff.onrender.com',
+    isPlaceholder: () => false,
   };
 
   const stored = await getStorage(['theme', 'backendUrl', 'defaultMode', 'selectedText', 'rewriteHistory']);

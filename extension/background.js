@@ -10,8 +10,8 @@ try {
 
 // Fallback config if config.js is not loaded
 const DEFAULT_CONFIG = typeof self.CONFIG !== 'undefined' ? self.CONFIG : {
-  API_BASE_URL: 'https://YOUR_PUBLIC_BACKEND_URL',
-  isPlaceholder: (url) => !url || url.includes('YOUR_PUBLIC_BACKEND_URL') || url.includes('YOUR-PUBLIC-BACKEND-URL'),
+  API_BASE_URL: 'https://rewriteai-jiff.onrender.com',
+  isPlaceholder: () => false,
 };
 
 // Initialize context menus and default settings upon installation
