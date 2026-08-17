@@ -114,26 +114,50 @@ rewriteai/
 
 ---
 
-## 🛠️ Quick Start & Installation
+## 📥 Download and Install RewriteAI
 
-### Option 1: Load Extension in Google Chrome (Developer Mode)
-
-1. Clone or download this repository:
-   ```bash
-   git clone https://github.com/pankaj9088/RewriteAI.git
-   ```
-2. Open Google Chrome and navigate to:
-   ```text
-   chrome://extensions
-   ```
-3. Enable **Developer mode** using the toggle in the top-right corner.
-4. Click **"Load unpacked"** in the top-left toolbar.
-5. Select the **`extension/`** folder from the repository.
-6. The **RewriteAI** extension is now installed! Pin it to your toolbar.
+1. Download `RewriteAI-Chrome-Extension.zip` from GitHub Releases or the repository root.
+2. Extract the ZIP file to a folder on your computer.
+3. Open Google Chrome and navigate to: `chrome://extensions`
+4. Enable **Developer mode** using the toggle switch in the top-right corner.
+5. Click the **"Load unpacked"** button in the top-left toolbar.
+6. Select the extracted extension folder (containing `manifest.json`).
+7. Pin **RewriteAI** to your Chrome toolbar for easy access.
+8. Select any text on any webpage and click the floating **✨ Rewrite** badge (or press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd>).
 
 ---
 
-### Option 2: Run Backend Locally (Optional)
+## 🔧 Troubleshooting
+
+### 1. Backend Connection Failure
+* **Symptom**: The extension status dot is gray/red, or it shows *"Backend Offline"*.
+* **Solution**:
+  - The production backend is hosted on Render Free Tier (`https://rewriteai-jiff.onrender.com`). If the server was idle, Render automatically spins it down. The first request may take ~30–50 seconds to wake up.
+  - Visit [`https://rewriteai-jiff.onrender.com/health`](https://rewriteai-jiff.onrender.com/health) directly in your browser. Once it returns `{"status":"ok"}`, the server is active.
+  - In the extension popup, click **⚙️ Settings** → **"Test Backend Health"** to refresh connection status.
+
+### 2. Extension Errors or Unresponsive UI
+* **Symptom**: The popup doesn't open or actions fail to trigger.
+* **Solution**:
+  - Go to `chrome://extensions`.
+  - Look for an **"Errors"** button on the RewriteAI card. If present, click it to see details.
+  - Click the **🔄 Reload icon** on the RewriteAI extension card to restart the background service worker.
+
+### 3. Reloading the Extension after Updates
+* Whenever files or configurations are updated:
+  1. Open `chrome://extensions`.
+  2. Locate **RewriteAI**.
+  3. Click the circular **Reload (🔄)** icon on the card.
+  4. Refresh any open webpages so the content script re-injects.
+
+### 4. Restricted Chrome Pages
+* **Important Note**: Google Chrome strictly prevents all browser extensions from running content scripts on:
+  - `chrome://` internal pages (e.g. `chrome://extensions`, `chrome://settings`, `chrome://newtab`)
+  - `edge://` or `about:blank` system tabs
+  - The official **Chrome Web Store** (`chromewebstore.google.com`)
+* On these restricted pages, the floating button cannot be injected. Simply test the extension on any regular public website (e.g. `wikipedia.org`, `github.com`, `google.com`, or any email/blog).
+
+---
 
 The extension is already pre-configured to connect to the live production backend (`https://rewriteai-jiff.onrender.com`). If you wish to run your own local development server:
 
