@@ -1,0 +1,6 @@
+{
+  "name": "RewriteAI",
+  "description": "AI-powered Chrome Extension and backend for grammar correction, smart rewriting, tone shifting, and translation using Gemini.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

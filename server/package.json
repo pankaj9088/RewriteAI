@@ -1,0 +1,19 @@
+{
+  "name": "rewriteai-backend",
+  "version": "1.0.0",
+  "description": "Production Express Backend for RewriteAI Chrome Extension powered by Google Gemini",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "@google/genai": "^2.4.0",
+    "dotenv": "^17.2.3",
+    "express": "^4.21.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

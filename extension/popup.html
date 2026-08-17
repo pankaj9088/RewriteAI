@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RewriteAI</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="app-container" id="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <div class="logo-icon">
+          <img src="icons/icon32.png" alt="RewriteAI Logo" width="22" height="22" style="border-radius: 6px; display: block;" />
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">RewriteAI</span>
+          <span class="brand-subtitle">Gemini Assistant</span>
+        </div>
+      </div>
+      
+      <div class="header-actions">
+        <div class="backend-indicator online" id="status-indicator" title="Backend: Online (Click to configure)">
+          <span class="dot"></span>
+        </div>
+        <button class="icon-btn" id="theme-toggle-btn" title="Toggle Dark/Light Mode">
+          <svg class="sun-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="moon-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+        <button class="icon-btn" id="history-toggle-btn" title="View History">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </button>
+        <button class="icon-btn" id="settings-toggle-btn" title="Settings">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Input Section -->
+      <section class="section input-section">
+        <div class="section-label-row">
+          <label for="source-text" class="section-label">Selected Text</label>
+          <div class="text-meta">
+            <span id="char-count">0 chars</span>
+            <span class="meta-divider">•</span>
+            <span id="word-count">0 words</span>
+            <button class="text-action-btn" id="paste-btn" title="Paste from clipboard">Paste</button>
+            <button class="text-action-btn" id="clear-btn" title="Clear text">Clear</button>
+          </div>
+        </div>
+        <div class="textarea-wrapper">
+          <textarea
+            id="source-text"
+            placeholder="Select text on any webpage, or paste text here to improve grammar, rewrite, paraphrase, or translate..."
+            rows="4"
+          ></textarea>
+        </div>
+      </section>
+
+      <!-- Modes Selection Grid -->
+      <section class="section modes-section">
+        <label class="section-label">Select Rewrite Mode</label>
+        <div class="modes-grid" id="modes-container">
+          <button class="mode-card active" data-mode="grammar">
+            <span class="mode-icon">✨</span>
+            <div class="mode-info">
+              <span class="mode-name">Improve Grammar</span>
+              <span class="mode-desc">Fix typos & punctuation</span>
+            </div>
+          </button>
+
+          <button class="mode-card" data-mode="professional">
+            <span class="mode-icon">💼</span>
+            <div class="mode-info">
+              <span class="mode-name">Professional</span>
+              <span class="mode-desc">Polished business tone</span>
+            </div>
+          </button>
+
+          <button class="mode-card" data-mode="friendly">
+            <span class="mode-icon">😊</span>
+            <div class="mode-info">
+              <span class="mode-name">Friendly</span>
+              <span class="mode-desc">Warm & approachable</span>
+            </div>
+          </button>
+
+          <button class="mode-card" data-mode="formal">
+            <span class="mode-icon">🎩</span>
+            <div class="mode-info">
+              <span class="mode-name">Make Formal</span>
+              <span class="mode-desc">Academic & elegant</span>
+            </div>
+          </button>
+
+          <button class="mode-card" data-mode="concise">
+            <span class="mode-icon">⚡</span>
+            <div class="mode-info">
+              <span class="mode-name">Make Concise</span>
+              <span class="mode-desc">Cut fluff & filler</span>
+            </div>
+          </button>
+
+          <button class="mode-card" data-mode="expand">
+            <span class="mode-icon">📖</span>
+            <div class="mode-info">
+              <span class="mode-name">Expand</span>
+              <span class="mode-desc">Elaborate & add depth</span>
+            </div>
+          </button>
+
+          <button class="mode-card" data-mode="paraphrase">
+            <span class="mode-icon">🔄</span>
+            <div class="mode-info">
+              <span class="mode-name">Paraphrase</span>
+              <span class="mode-desc">Rephrase fresh words</span>
+            </div>
+          </button>
+
+          <button class="mode-card" data-mode="translate">
+            <span class="mode-icon">🌐</span>
+            <div class="mode-info">
+              <span class="mode-name">Translate</span>
+              <span class="mode-desc">Convert to any language</span>
+            </div>
+          </button>
+
+          <button class="mode-card" data-mode="custom">
+            <span class="mode-icon">🛠️</span>
+            <div class="mode-info">
+              <span class="mode-name">Custom Rewrite</span>
+              <span class="mode-desc">Your custom prompt</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- Conditional Target Language Selector for Translate -->
+        <div class="conditional-field" id="translate-field" style="display: none;">
+          <label for="target-language" class="sub-label">Target Language</label>
+          <select id="target-language" class="select-input">
+            <option value="Spanish">Spanish (Español)</option>
+            <option value="French">French (Français)</option>
+            <option value="German">German (Deutsch)</option>
+            <option value="Japanese">Japanese (日本語)</option>
+            <option value="Chinese (Simplified)">Chinese Simplified (简体中文)</option>
+            <option value="Hindi">Hindi (हिन्दी)</option>
+            <option value="Arabic">Arabic (العربية)</option>
+            <option value="Portuguese">Portuguese (Português)</option>
+            <option value="Italian">Italian (Italiano)</option>
+            <option value="Russian">Russian (Русский)</option>
+            <option value="Korean">Korean (한국어)</option>
+            <option value="Dutch">Dutch (Nederlands)</option>
+          </select>
+        </div>
+
+        <!-- Conditional Custom Instruction Input -->
+        <div class="conditional-field" id="custom-field" style="display: none;">
+          <label for="custom-instruction" class="sub-label">Custom Rewrite Instructions</label>
+          <input
+            type="text"
+            id="custom-instruction"
+            class="text-input"
+            placeholder="e.g. Rewrite as a bulleted LinkedIn post, or make it sound enthusiastic"
+          />
+        </div>
+      </section>
+
+      <!-- Generate Button -->
+      <div class="action-row">
+        <button class="generate-btn" id="generate-btn">
+          <span class="btn-sparkle">✨</span>
+          <span class="btn-text">Generate Rewrite</span>
+          <span class="shortcut-hint">Ctrl+Enter</span>
+        </button>
+      </div>
+
+      <!-- Output / Result Section -->
+      <section class="section result-section" id="result-section" style="display: none;">
+        <div class="section-label-row">
+          <div class="result-title-group">
+            <label class="section-label">AI Rewritten Result</label>
+            <span class="badge-tag" id="result-mode-badge">Grammar</span>
+          </div>
+          <div class="result-stats" id="result-stats"></div>
+        </div>
+
+        <div class="result-box-wrapper">
+          <!-- Text View -->
+          <div class="result-content" id="result-content"></div>
+          
+          <!-- Loading State Overlay -->
+          <div class="loading-overlay" id="loading-overlay" style="display: none;">
+            <div class="spinner"></div>
+            <span class="loading-text">Gemini is rewriting...</span>
+          </div>
+        </div>
+
+        <!-- Result Action Toolbar -->
+        <div class="result-toolbar" id="result-toolbar">
+          <button class="tool-btn copy-btn" id="copy-result-btn" title="Copy rewritten text">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span class="tool-btn-label">Copy</span>
+          </button>
+
+          <button class="tool-btn replace-btn" id="replace-page-btn" title="Replace selected text on webpage">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 20h9"></path>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+            </svg>
+            <span class="tool-btn-label">Replace in Page</span>
+          </button>
+
+          <button class="tool-btn regen-btn" id="regenerate-btn" title="Regenerate with AI">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+            <span class="tool-btn-label">Regenerate</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- History Drawer (Collapsible) -->
+      <div class="drawer" id="history-drawer" style="display: none;">
+        <div class="drawer-header">
+          <h3 class="drawer-title">Rewrite History</h3>
+          <div class="drawer-actions">
+            <button class="drawer-link-btn" id="clear-history-btn">Clear All</button>
+            <button class="drawer-close-btn" id="close-history-btn">&times;</button>
+          </div>
+        </div>
+        <div class="history-list" id="history-list">
+          <div class="empty-state">No rewrite history yet.</div>
+        </div>
+      </div>
+
+      <!-- Settings Drawer (Collapsible) -->
+      <div class="drawer" id="settings-drawer" style="display: none;">
+        <div class="drawer-header">
+          <h3 class="drawer-title">RewriteAI Settings</h3>
+          <button class="drawer-close-btn" id="close-settings-btn">&times;</button>
+        </div>
+        <div class="settings-body">
+          <div class="setting-item">
+            <label for="backend-url-input" class="setting-label">Backend Server URL (HTTPS)</label>
+            <input type="text" id="backend-url-input" class="text-input" placeholder="https://YOUR_PUBLIC_BACKEND_URL" />
+            <span class="setting-hint">Select a preset or enter your deployed backend URL:</span>
+          </div>
+
+          <div class="preset-buttons-row" style="display: flex; gap: 6px; margin-bottom: 8px;">
+            <button class="btn-preset" id="preset-cloud-btn" style="flex: 1; padding: 6px 8px; font-size: 11px; background: #eff6ff; border: 1px solid #93c5fd; border-radius: 6px; cursor: pointer; color: #1d4ed8; font-weight: 500;">
+              🚀 Production HTTPS
+            </button>
+            <button class="btn-preset" id="preset-local-btn" style="flex: 1; padding: 6px 8px; font-size: 11px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer; color: #334155; font-weight: 500;">
+              💻 Localhost (3000)
+            </button>
+          </div>
+
+          <div class="setting-actions">
+            <button class="btn-secondary" id="test-connection-btn">Test Backend Health</button>
+            <span class="health-status" id="health-test-result"></span>
+          </div>
+
+          <div class="setting-item" style="margin-top: 10px;">
+            <span class="setting-label">Default Shortcut</span>
+            <div class="keycap-row">
+              <kbd class="keycap">Ctrl</kbd> + <kbd class="keycap">Shift</kbd> + <kbd class="keycap">R</kbd>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Toast Notification Banner -->
+    <div class="toast" id="popup-toast"></div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

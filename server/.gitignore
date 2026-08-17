@@ -1,0 +1,15 @@
+# Server-level .gitignore
+# Prevents backend secrets from being committed to version control
+
+# Environment variables (contains GEMINI_API_KEY - NEVER commit this)
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Node modules
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*

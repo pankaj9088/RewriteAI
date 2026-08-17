@@ -1,0 +1,41 @@
+# RewriteAI - AI Grammar & Text Rewriting Assistant
+
+RewriteAI is your intelligent, privacy-first writing companion powered by Google Gemini. Enhance emails, articles, code comments, team chats, and documents on any webpage with seamless in-place rewriting.
+
+---
+
+### Key Capabilities
+
+1. ✨ Improve Grammar: Fix spelling, syntax, and punctuation errors while maintaining your authentic voice.
+2. 💼 Professional Tone: Transform casual drafts into diplomatic, executive-ready workplace communication.
+3. 😊 Friendly Tone: Make messages warmer, approachable, and engaging.
+4. 🎩 Formal Tone: Elevate text for legal briefs, academic papers, and official correspondence.
+5. ⚡ Concise: Cut filler, fluff, and wordiness for maximum punch and clarity.
+6. 📖 Expand: Elaborate thoughts with richer context, examples, and detailed flow.
+7. 🔄 Paraphrase: Discover fresh phrasing and alternate sentence structures.
+8. 🌐 Translate: Translate fluently into Spanish, French, German, Japanese, Chinese, Hindi, Arabic, and more.
+9. 🛠️ Custom Rewrite: Guide transformations with custom persona prompts (e.g. "Write as a technical documentation specialist").
+
+---
+
+### Why Choose RewriteAI?
+
+* Zero-Exposure Backend Security: Your private Gemini API key remains securely on the backend server—never embedded in browser extensions.
+* In-Page Floating Toolbar: Select any text to reveal the quick "✨ Rewrite" trigger button.
+* Universal Editor Replacement: Replace text directly inside input fields, textareas, and contenteditable elements (Gmail, Slack, Notion, Docs).
+* Keyboard Shortcut: Press `Ctrl + Shift + R` (or `Cmd + Shift + R` on macOS) to instantly rewrite highlighted selections.
+* Privacy-First Design: No browsing tracking, no persistent logging of webpage content, and full user control over local history.
+* Dark & Light Themes: Gorgeous Editorial aesthetic designed for deep focus and reading comfort.
+
+---
+
+### How to Use
+
+1. Highlight text on any webpage.
+2. Click the floating "✨ Rewrite" button or press `Ctrl + Shift + R`.
+3. Choose your desired transformation mode.
+4. Click "Replace in Page" or "Copy" to insert the refined text.
+
+Website: https://ai.studio
+Support & Documentation: https://ai.studio
+Privacy Policy: https://ai.studio/privacy

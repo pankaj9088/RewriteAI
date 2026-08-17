@@ -1,0 +1,11 @@
+/* RewriteAI Content Styles */
+#rewriteai-extension-root {
+  all: initial;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+  z-index: 2147483647;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
