@@ -57,5 +57,4 @@ Selected text is processed solely to execute the rewrite mode you select (e.g. i
 ## 8. Contact
 For support or questions regarding privacy:
 * Project: RewriteAI Assistant
-* Developer: Google AI Studio Build Team
-* Support Email: support@rewriteai.local
+* Support Email: sahpankajkumar690@gmail.com
